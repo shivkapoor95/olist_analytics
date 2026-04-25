@@ -10,16 +10,29 @@ A dbt project built on the Brazilian Olist e-commerce dataset. Raw data was load
 
 ## How to Run
 
-Create and activate a virtual environment on your system 
+1. Download the Olist dataset from Kaggle and place the CSVs in a folder called `data/` inside the project:
+   https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
 
-Test the connection:
-dbt debug
+2. Load the CSVs into PostgreSQL:
+   python load_olist.py
 
-Run all models:
-dbt run
+3. Set up your `~/.dbt/profiles.yml` to connect to your local PostgreSQL instance.
+   The profile name must be: olist_analytics
 
-Run all tests:
-dbt test
+4. Create and activate a virtual environment, then install dbt-postgres:
+   pip install dbt-postgres
+
+5. Install dbt packages:
+   dbt deps
+
+6. Test the connection:
+   dbt debug
+
+7. Run all models:
+   dbt run
+
+8. Run all tests:
+   dbt test
 
 ## Project Structure
 - staging/ — cleans and recasts raw source tables
