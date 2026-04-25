@@ -1,0 +1,129 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "One row per unique customer with location information. Deduplicated from stg_olist_customers."
+    columns:
+      - name: customer_unique_id
+        description: "True unique identifier for a customer across all orders."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Order level customer identifier."
+        tests:
+          - not_null
+      - name: customer_zip_code_prefix
+        description: "Zip code prefix of the customer's location."
+      - name: customer_city
+        description: "City of the customer."
+      - name: customer_state
+        description: "State of the customer."
+
+  - name: dim_products
+    description: "One row per product with category translated to English."
+    columns:
+      - name: product_id
+        description: "Unique identifier for each product."
+        tests:
+          - unique
+          - not_null
+      - name: product_category_name_english
+        description: "Product category name translated to English."
+      - name: product_weight_g
+        description: "Product weight in grams."
+      - name: product_length_cm
+        description: "Product length in centimeters."
+      - name: product_height_cm
+        description: "Product height in centimeters."
+      - name: product_width_cm
+        description: "Product width in centimeters."
+
+  - name: dim_sellers
+    description: "One row per seller with location information."
+    columns:
+      - name: seller_id
+        description: "Unique identifier for each seller."
+        tests:
+          - unique
+          - not_null
+      - name: seller_zip_code_prefix
+        description: "Zip code prefix of the seller's location."
+      - name: seller_city
+        description: "City where the seller is located."
+      - name: seller_state
+        description: "State where the seller is located."
+
+  - name: fct_orders
+    description: "One row per order with payment totals, review scores and delivery metrics."
+    columns:
+      - name: order_id
+        description: "Unique identifier for each order."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "References the customer who placed the order."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: order_status
+        description: "Current status of the order."
+        tests:
+          - accepted_values:
+              values: ['delivered', 'shipped', 'canceled', 'unavailable', 'invoiced', 'processing', 'created', 'approved']
+      - name: total_payment_value
+        description: "Total payment value for the order in Brazilian Real."
+      - name: payment_type
+        description: "Payment method used for the order."
+      - name: payment_installments
+        description: "Number of installments chosen by the customer."
+      - name: avg_review_score
+        description: "Average customer review score for the order."
+      - name: delivery_time_days
+        description: "Actual number of days taken to deliver the order."
+      - name: estimated_delivery_days
+        description: "Estimated number of days for delivery at time of purchase."
+      - name: delivery_delay_days
+        description: "Number of days delayed — negative means early, positive means late."
+
+  - name: fct_order_items
+    description: "One row per order item with price, freight and order context."
+    columns:
+      - name: order_id
+        description: "References the order this item belongs to."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fct_orders')
+              field: order_id
+      - name: order_item_id
+        description: "Sequential number identifying the item within an order."
+      - name: product_id
+        description: "References the product that was purchased."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+      - name: seller_id
+        description: "References the seller who sold the item."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sellers')
+              field: seller_id
+      - name: customer_id
+        description: "References the customer who placed the order."
+      - name: order_status
+        description: "Current status of the order."
+      - name: order_purchase_timestamp
+        description: "Timestamp when the order was placed."
+      - name: price
+        description: "Price of the item in Brazilian Real."
+      - name: freight_value
+        description: "Freight cost for the item in Brazilian Real."
+      - name: total_item_value
+        description: "Total value of the item including freight in Brazilian Real."
