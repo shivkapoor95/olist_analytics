@@ -10,8 +10,7 @@ A dbt project built on the Brazilian Olist e-commerce dataset. Raw data was load
 
 ## How to Run
 
-Activate the virtual environment:
-source ~/Documents/dbt/dbtenv/bin/activate
+Create and activate a virtual environment on your system 
 
 Test the connection:
 dbt debug
